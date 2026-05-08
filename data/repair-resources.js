@@ -198,57 +198,15 @@ const RESOURCES = [
     systems: ['general'],
   },
 
-  // ---- High-value individual threads (verified) ---------------------------
+  // ---- High-value individual threads (verified, surfaced under "Forum") ---
   {
     id: 'ih8mud-80-faq',
     title: 'ih8mud - 80 Series FAQ (general info, modifications, repairs)',
     url: 'https://forum.ih8mud.com/threads/80-series-faq.84888/',
-    type: 'guide',
+    type: 'forum',
     seriesIds: ['80-series', 'lx450'],
     systems: ['general'],
     notes: 'Pinned, regularly updated 80-series knowledge base on ih8mud.',
-  },
-
-  // ---- Common-issue write-ups (search-based; clicking lands on real threads)
-  {
-    id: 'guide-80-birfields',
-    title: '80 Series birfield / knuckle service threads',
-    url: googleIh8mud('80-series', 'birfield knuckle rebuild write-up'),
-    type: 'guide',
-    seriesIds: ['80-series', 'lx450'],
-    systems: ['axles', 'drivetrain'],
-  },
-  {
-    id: 'guide-100-starter',
-    title: '100 Series / LX470 starter replacement (under-intake)',
-    url: googleIh8mud('100-series', '2UZ-FE starter replacement under intake write-up'),
-    type: 'guide',
-    seriesIds: ['100-series', 'lx470'],
-    systems: ['electrical', 'engine'],
-  },
-  {
-    id: 'guide-lx470-ahc',
-    title: 'LX470 AHC (Active Height Control) - explained / service',
-    url: googleIh8mud('lx470', 'AHC active height control accumulator globe pressure'),
-    type: 'guide',
-    seriesIds: ['lx470'],
-    systems: ['ahc', 'suspension'],
-  },
-  {
-    id: 'guide-200-kdss',
-    title: '200 Series KDSS - explained / service',
-    url: googleIh8mud('200-series', 'KDSS kinetic dynamic suspension explained service'),
-    type: 'guide',
-    seriesIds: ['200-series', 'lx570'],
-    systems: ['suspension'],
-  },
-  {
-    id: 'guide-1fz-phh',
-    title: '1FZ-FE PHH (#6 cylinder coolant pipe) - 80 Series',
-    url: googleIh8mud('80-series', '1FZ-FE PHH pesky heater hose number 6 coolant pipe'),
-    type: 'guide',
-    seriesIds: ['80-series', 'lx450'],
-    systems: ['cooling', 'engine'],
   },
 
   // ---- YouTube channels (verified channels) -------------------------------
@@ -412,7 +370,6 @@ const RESOURCES = [
  */
 const RESOURCE_TYPES = [
   { id: 'fsm', label: 'Factory Service Manual' },
-  { id: 'guide', label: 'Repair Guide / Write-up' },
   { id: 'youtube', label: 'YouTube' },
   { id: 'forum', label: 'Forum' },
   { id: 'parts-vendor', label: 'Parts Vendor' },

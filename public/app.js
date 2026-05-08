@@ -524,7 +524,7 @@ function renderResources(data, q) {
     (groups[r.type] = groups[r.type] || []).push(r);
   }
 
-  const order = ['fsm', 'guide', 'youtube', 'forum', 'parts-vendor'];
+  const order = ['fsm', 'youtube', 'forum', 'parts-vendor'];
   const labelById = Object.fromEntries(CATALOG.resourceTypes.map((t) => [t.id, t.label]));
 
   const out = [];
