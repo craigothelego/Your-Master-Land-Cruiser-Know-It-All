@@ -361,7 +361,9 @@ Given the user's symptoms (and, if provided, their vehicle's series, chassis cod
           "name": string,                  // common part name, e.g. "Thermostat (with gasket)"
           "notes": string,                 // why it's likely needed, OEM vs aftermarket guidance, or "diagnostic only"
           "searchTerms": string,           // good keywords for parts vendor search, e.g. "1FZ-FE thermostat 88C"
-          "oem": boolean                   // true if user should buy OEM specifically (most cooling/electrical sensors), false if aftermarket is acceptable
+          "oem": boolean,                  // true if user should buy OEM specifically, false if aftermarket is acceptable
+          "oemPartNumber": string | null,  // Toyota / Lexus OEM part number when you are confident it's correct for the user's specific year/series/engine. Use Toyota's hyphenated format (e.g., "16400-66060"). Null when unsure.
+          "oemPartNumberConfidence": "high" | "medium" | "low" | null  // confidence in the OEM part number above. "high" = canonical, well-documented for this model+year. "medium" = correct for the engine/series family but may differ by sub-model or production date. "low" = best-guess. Null when oemPartNumber is null.
         }
       ]
     }
@@ -380,7 +382,8 @@ Rules:
   - "AHC accumulator / globe pressure" only for Lexus LX 470/570/600
   - "KDSS cross-link" only for Prado J120/J150, 200 series, and FJ Cruiser/4Runner/GX siblings
   - "1VD-FTV cracked exhaust manifold" for VDJ200 / VDJ79
-- Do NOT invent OEM part numbers. The user will look those up by VIN. Provide good searchTerms instead.
+- Provide OEM Toyota / Lexus part numbers when you are CONFIDENT they are correct for the user's specific year + series + engine. Use the canonical hyphenated Toyota format (e.g., "16400-66060", "90916-03075"). When in doubt about which sub-variant applies, mark oemPartNumberConfidence as "medium" or "low" and tell the user to verify by VIN. NEVER make up plausible-looking numbers - leave the field null instead.
+- Always provide good searchTerms (engine code + part name + series) so even when the OEM number is unknown, vendor search returns useful results.
 - For each part, set oem=true when factory quality matters (cooling system parts, sensors, gaskets, water pumps, head gaskets, AHC components, KDSS components, diesel injectors and seals, common-rail components) and oem=false when aftermarket is fine (brake pads, filters, belts, hoses where Gates/Aisin/Denso are common).
 - estimatedCostUsd is in USD; remind users in your explanation that local labor rates and parts availability vary by region, especially for RoW-only diesel parts.
 - If the cause is purely diagnostic (e.g., "loose ground"), partsNeeded can be an empty array or a single entry with notes "diagnostic only".
@@ -389,82 +392,73 @@ Rules:
 `;
 
 /**
+ * Curated parts-vendor list. Each entry knows how to build a search URL for
+ * a given query. Where a vendor's internal search is unreliable or unknown,
+ * we fall back to Google site-scoped search (always lands the user on real
+ * indexed product pages from that vendor).
+ */
+const PARTS_VENDORS = [
+  // OEM-focused
+  { vendor: 'Olathe Toyota Parts (OEM)', kind: 'oem', site: 'olathetoyotaparts.com' },
+  { vendor: 'PartSouq (OEM, international)', kind: 'oem', site: 'partsouq.com' },
+  { vendor: 'Amayama (JDM OEM)', kind: 'oem', site: 'amayama.com' },
+  // Enthusiast / aftermarket - heavy Land Cruiser specialty
+  { vendor: 'Cruiser Corps', kind: 'aftermarket', site: 'cruisercorps.com' },
+  { vendor: 'Cruiser Parts (CruiserParts.net)', kind: 'aftermarket', site: 'shop.cruiserparts.net' },
+  { vendor: 'City Racer LLC', kind: 'aftermarket', site: 'cityracerllc.com' },
+  { vendor: 'CruiserTeq', kind: 'aftermarket', site: 'cruiserteq.com' },
+  { vendor: 'Cool Cruisers', kind: 'aftermarket', site: 'coolcruisers.com' },
+  { vendor: 'Specter Off-Road (SOR)', kind: 'aftermarket', site: 'sor.com' },
+  { vendor: 'Cruiser Outfitters', kind: 'aftermarket', site: 'cruiseroutfitters.com' },
+  { vendor: "Beno's Cruisers", kind: 'aftermarket', site: 'benoscruisers.com' },
+  { vendor: 'RockAuto', kind: 'aftermarket', site: 'rockauto.com' },
+  // Marketplaces (last)
+  { vendor: 'Amazon', kind: 'marketplace', direct: (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}` },
+  { vendor: 'eBay Motors', kind: 'marketplace', direct: (q) => `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}&_sacat=6028` },
+];
+
+/**
  * Build a list of parts-vendor search URLs for a given part.
  *
- * We use site-scoped Google searches for vendors whose internal search URLs
- * are unstable, and direct search URLs for vendors with reliable patterns.
- * Including the series label sharpens the results.
+ * Strategy:
+ *  - When the LLM provided an OEM part number, USE IT as the primary query -
+ *    vendors return high-precision results when searching by part number.
+ *  - Otherwise, use the part's searchTerms (or name) plus the series label.
+ *  - Use Google site-scoped search for vendor lookups (`site:vendor.com Q`)
+ *    because every vendor's internal search has different conventions and
+ *    Google reliably returns the right product pages.
  *
- * @param {{ name: string, searchTerms?: string, oem?: boolean }} part
+ * @param {{
+ *   name: string,
+ *   searchTerms?: string,
+ *   oem?: boolean,
+ *   oemPartNumber?: string | null,
+ * }} part
  * @param {string} [seriesLabel]
- * @param {string} [vin]
  * @returns {Array<{ vendor: string, url: string, kind: 'oem'|'aftermarket'|'marketplace' }>}
  */
-function buildPartsSearchUrls(part, seriesLabel, vin) {
+function buildPartsSearchUrls(part, seriesLabel /*, vin */) {
+  const oemNum = (part.oemPartNumber || '').trim();
   const baseTerms = (part.searchTerms || part.name || '').trim();
-  const q = [seriesLabel || 'Toyota Land Cruiser', baseTerms].filter(Boolean).join(' ');
-  const enc = encodeURIComponent(q);
-  const encParts = encodeURIComponent(baseTerms);
+  // When we have an OEM number it should be the dominant query term; vendors
+  // return very precise results. We still include the part name as a safety
+  // net so Google Shopping / generic results stay relevant.
+  const query = oemNum
+    ? `${oemNum} ${part.name || ''}`.trim()
+    : `${seriesLabel || 'Toyota Land Cruiser'} ${baseTerms}`.trim();
+  const encQ = encodeURIComponent(query);
 
-  const links = [];
+  const links = PARTS_VENDORS.map((v) => {
+    if (v.direct) return { vendor: v.vendor, kind: v.kind, url: v.direct(query) };
+    // Google site-scoped search - always lands on the vendor's real product pages.
+    return {
+      vendor: v.vendor,
+      kind: v.kind,
+      url: `https://www.google.com/search?q=site%3A${v.site}+${encQ}`,
+    };
+  });
 
-  // OEM-first vendors (always relevant; user can always cross-reference an OEM number)
-  if (vin) {
-    links.push({
-      vendor: 'Olathe Toyota Parts (OEM, by your VIN)',
-      url: `https://www.olathetoyotaparts.com/?siteid=214450&vin=${encodeURIComponent(vin)}`,
-      kind: 'oem',
-    });
-  }
-  links.push(
-    {
-      vendor: 'Olathe Toyota Parts (OEM)',
-      url: `https://www.google.com/search?q=site%3Aolathetoyotaparts.com+${enc}`,
-      kind: 'oem',
-    },
-    {
-      vendor: 'PartSouq (OEM, intl.)',
-      url: `https://www.google.com/search?q=site%3Apartsouq.com+${enc}`,
-      kind: 'oem',
-    },
-    {
-      vendor: 'Amayama (JDM OEM)',
-      url: `https://www.amayama.com/en/search/parts/${encParts}`,
-      kind: 'oem',
-    },
-  );
-
-  // Enthusiast / aftermarket
-  links.push(
-    {
-      vendor: 'Cruiser Outfitters',
-      url: `https://www.cruiseroutfitters.com/search?q=${encParts}`,
-      kind: 'aftermarket',
-    },
-    {
-      vendor: "Beno's Cruisers",
-      url: `https://www.google.com/search?q=site%3Abenoscruisers.com+${enc}`,
-      kind: 'aftermarket',
-    },
-    {
-      vendor: 'RockAuto',
-      url: `https://www.google.com/search?q=site%3Arockauto.com+${enc}`,
-      kind: 'aftermarket',
-    },
-    {
-      vendor: 'Amazon',
-      url: `https://www.amazon.com/s?k=${enc}`,
-      kind: 'marketplace',
-    },
-    {
-      vendor: 'eBay Motors',
-      url: `https://www.ebay.com/sch/i.html?_nkw=${enc}&_sacat=6028`,
-      kind: 'marketplace',
-    },
-  );
-
-  // If the LLM marked this part as OEM-required, downgrade non-OEM links
-  // by sorting OEM ones first.
+  // If the LLM marked this part as OEM-required, surface OEM vendors first.
   if (part.oem) {
     links.sort((a, b) => (a.kind === 'oem' ? -1 : 1) - (b.kind === 'oem' ? -1 : 1));
   }

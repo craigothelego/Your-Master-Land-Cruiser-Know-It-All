@@ -363,6 +363,62 @@ const RESOURCES = [
     systems: ['general', 'suspension'],
     notes: 'Aussie 4WD chain; bullbars, suspension kits, drawer systems for the local Land Cruiser/Prado fleet.',
   },
+
+  // ---- Land Cruiser specialty parts (US / North America) ------------------
+  {
+    id: 'cruiser-corps',
+    title: 'Cruiser Corps',
+    url: 'https://www.cruisercorps.com/',
+    type: 'parts-vendor',
+    seriesIds: ['40-series', '55-series', '60-series', '70-series', '80-series', '100-series', '200-series', 'lx450', 'lx470', 'lx570'],
+    systems: ['general'],
+    notes: 'Land Cruiser specialist with broad parts inventory and rebuild components.',
+  },
+  {
+    id: 'city-racer',
+    title: 'City Racer LLC',
+    url: 'https://www.cityracerllc.com/',
+    type: 'parts-vendor',
+    seriesIds: ['40-series', '55-series', '60-series', '80-series', '100-series', '200-series', 'lx450', 'lx470', 'lx570'],
+    systems: ['general', 'engine', 'electrical'],
+    notes: 'OEM and quality replacement parts for vintage and modern Land Cruisers.',
+  },
+  {
+    id: 'cruiserteq',
+    title: 'CruiserTeq',
+    url: 'https://cruiserteq.com/',
+    type: 'parts-vendor',
+    seriesIds: ['80-series', '100-series', '200-series', '300-series', 'lx450', 'lx470', 'lx570', 'lx600', 'j250'],
+    systems: ['general', 'suspension'],
+    notes: 'Newer Land Cruiser parts and overland accessories.',
+  },
+  {
+    id: 'cool-cruisers',
+    title: 'Cool Cruisers',
+    url: 'https://www.coolcruisers.com/',
+    type: 'parts-vendor',
+    seriesIds: ['40-series', '55-series', '60-series', '70-series', '80-series', '100-series'],
+    systems: ['general'],
+    notes: 'Vintage Land Cruiser parts and restoration components.',
+  },
+  {
+    id: 'sor',
+    title: 'Specter Off-Road (SOR)',
+    url: 'https://www.sor.com/',
+    type: 'parts-vendor',
+    seriesIds: ['40-series', '55-series', '60-series', '70-series', '80-series', '100-series'],
+    systems: ['general'],
+    notes: 'Long-running Land Cruiser parts house with deep catalogs for older trucks.',
+  },
+  {
+    id: 'cruiserparts-net',
+    title: 'Cruiser Parts (CruiserParts.net)',
+    url: 'https://shop.cruiserparts.net/',
+    type: 'parts-vendor',
+    seriesIds: ['40-series', '55-series', '60-series', '70-series', '80-series', '100-series', '200-series'],
+    systems: ['general'],
+    notes: 'Used and new Land Cruiser parts; particularly strong for 60/80/100 series.',
+  },
 ];
 
 /**

@@ -438,14 +438,25 @@ function renderPartsList(parts) {
              </a>`,
         )
         .join('');
+      const oemConf = (p.oemPartNumberConfidence || '').toLowerCase();
+      const oemLine = p.oemPartNumber
+        ? `<p class="part-oem">
+             <span class="muted">OEM part #:</span>
+             <code class="oem-num">${escapeHtml(p.oemPartNumber)}</code>
+             <button class="copy-btn" type="button" data-copy="${escapeHtml(p.oemPartNumber)}" title="Copy part number">Copy</button>
+             ${oemConf ? `<span class="badge conf-${escapeHtml(oemConf)}" title="AI confidence">${escapeHtml(oemConf)} confidence</span>` : ''}
+             <span class="oem-disclaimer">verify by VIN before purchase</span>
+           </p>`
+        : '';
       return `<li class="part">
         <div class="part-head">
           <strong>${escapeHtml(p.name)}</strong>
           ${p.oem ? '<span class="badge oem">OEM recommended</span>' : ''}
         </div>
+        ${oemLine}
         ${p.notes ? `<p class="part-notes">${escapeHtml(p.notes)}</p>` : ''}
         ${
-          p.searchTerms
+          p.searchTerms && !p.oemPartNumber
             ? `<p class="part-search"><span class="muted">Search:</span> <code>${escapeHtml(p.searchTerms)}</code></p>`
             : ''
         }
@@ -597,6 +608,26 @@ function renderResources(data, q) {
 
   rsResult.innerHTML = out.join('\n');
 }
+
+// ---- Copy-to-clipboard (delegated; works for OEM part-number badges) ------
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  const text = btn.dataset.copy;
+  if (!text) return;
+  const restore = btn.textContent;
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = restore), 1200);
+    })
+    .catch(() => {
+      btn.textContent = 'Copy failed';
+      setTimeout(() => (btn.textContent = restore), 1200);
+    });
+});
 
 // ---- Hero gallery ----------------------------------------------------------
 
