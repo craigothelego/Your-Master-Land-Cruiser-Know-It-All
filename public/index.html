@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Master Land Cruiser Know-It-All</title>
+    <meta
+      name="description"
+      content="VIN lookup, AI troubleshooting, and curated repair resources for Toyota Land Cruiser and Lexus LX enthusiasts."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">LC</div>
+        <div>
+          <h1>Your Master Land Cruiser Know-It-All</h1>
+          <p class="tagline">VIN lookup, troubleshooting, and the resources you actually need.</p>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="vin" role="tab" aria-selected="true">VIN Lookup</button>
+        <button class="tab" data-tab="troubleshoot" role="tab" aria-selected="false">Troubleshoot</button>
+        <button class="tab" data-tab="resources" role="tab" aria-selected="false">Resources</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO GALLERY ----------------------------------------------------- -->
+      <section class="hero-gallery" aria-label="Featured Land Cruiser generations">
+        <button class="hero-card" data-series="40-series" type="button">
+          <img src="/images/fj40.jpg" alt="Toyota Land Cruiser 40 Series (FJ40) on a desert trail" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">1960 - 1984</span>
+            <span class="hero-title">40 Series</span>
+            <span class="hero-sub">FJ40 / BJ40 / HJ45</span>
+          </div>
+        </button>
+        <button class="hero-card" data-series="60-series" type="button">
+          <img src="/images/fj60.jpg" alt="Toyota Land Cruiser 60 Series (FJ60) station wagon in a forest" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">1980 - 1990</span>
+            <span class="hero-title">60 Series</span>
+            <span class="hero-sub">FJ60 / FJ62 / HJ61</span>
+          </div>
+        </button>
+        <button class="hero-card" data-series="70-series" type="button">
+          <img src="/images/land-cruiser-70.jpg" alt="Toyota Land Cruiser 70 Series troop carrier in the outback" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">1984 - present</span>
+            <span class="hero-title">70 Series</span>
+            <span class="hero-sub">HZJ75 / VDJ79 / Troopy</span>
+          </div>
+        </button>
+        <button class="hero-card" data-series="80-series" type="button">
+          <img src="/images/fzj80.jpg" alt="Toyota Land Cruiser 80 Series (FZJ80) on a rocky desert overlook" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">1990 - 1997</span>
+            <span class="hero-title">80 Series</span>
+            <span class="hero-sub">FZJ80 / HDJ80 / 1FZ-FE</span>
+          </div>
+        </button>
+        <button class="hero-card" data-series="100-series" type="button">
+          <img src="/images/uzj100.jpg" alt="Toyota Land Cruiser 100 Series (UZJ100) at sunset" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">1998 - 2007</span>
+            <span class="hero-title">100 Series</span>
+            <span class="hero-sub">UZJ100 / 2UZ-FE V8</span>
+          </div>
+        </button>
+        <button class="hero-card" data-series="200-series" type="button">
+          <img src="/images/urj200.jpg" alt="Toyota Land Cruiser 200 Series (URJ200) on a mountain road" loading="lazy" />
+          <div class="hero-overlay">
+            <span class="hero-eyebrow">2008 - 2021</span>
+            <span class="hero-title">200 Series</span>
+            <span class="hero-sub">URJ200 / 3UR-FE V8</span>
+          </div>
+        </button>
+      </section>
+
+      <!-- VIN LOOKUP ------------------------------------------------------- -->
+      <section id="tab-vin" class="tab-panel active" role="tabpanel">
+        <div class="card">
+          <h2>Decode your VIN</h2>
+          <p class="muted">
+            Enter your 17-character VIN (or a pre-1981 chassis number). We'll identify the year,
+            model, series / chassis code, engine, and link to the right resources.
+            Works globally - including Prado (J90/J120/J150/J250), 70 Series, and RoW diesel variants.
+          </p>
+          <form id="vin-form" class="row">
+            <input
+              id="vin-input"
+              name="vin"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="e.g. JT3HJ85J0V0123456"
+              maxlength="17"
+              required
+            />
+            <button type="submit" class="primary">Decode</button>
+          </form>
+          <p class="hint">
+            Don't have a VIN handy? Try <button class="link" data-sample="JT3HJ85J0V0123456">an 80-series sample</button>
+            or <button class="link" data-sample="JTMHY7AJ5J4070000">a 200-series sample</button>.
+          </p>
+
+          <!-- Image upload -->
+          <div class="divider"><span>or upload a photo</span></div>
+
+          <div class="upload" id="vin-upload">
+            <input type="file" id="vin-image-input" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+            <label for="vin-image-input" class="upload-zone" id="vin-upload-zone">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <div>
+                <strong>Upload a photo</strong>
+                <div class="upload-sub">Photo of the VIN plate, door jamb sticker, registration, or even just your truck. We'll extract the VIN or identify the series.</div>
+              </div>
+            </label>
+            <div id="vin-upload-preview" class="upload-preview hidden">
+              <img id="vin-upload-img" alt="Uploaded photo preview" />
+              <div class="upload-actions">
+                <button type="button" class="primary" id="vin-upload-go">Identify</button>
+                <button type="button" class="link" id="vin-upload-clear">Choose a different photo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="vin-result" class="result hidden"></div>
+      </section>
+
+      <!-- TROUBLESHOOT ----------------------------------------------------- -->
+      <section id="tab-troubleshoot" class="tab-panel" role="tabpanel">
+        <div class="card">
+          <h2>Describe your issue</h2>
+          <p class="muted">
+            Tell us what's happening. The more specific, the better - sounds, smells, when it
+            happens, recent work done. We'll suggest likely causes, diagnostic steps, parts likely
+            needed, and the resources to back them up. Works for petrol and diesel engines in any
+            market. Cost estimates are USD; local labor and parts vary by region.
+          </p>
+          <form id="troubleshoot-form">
+            <div class="grid-2">
+              <label>
+                <span>Series (optional)</span>
+                <select id="ts-series">
+                  <option value="">- not sure / skip -</option>
+                </select>
+              </label>
+              <label>
+                <span>Year (optional)</span>
+                <input id="ts-year" type="number" min="1960" max="2099" placeholder="e.g. 1996" />
+              </label>
+            </div>
+            <label>
+              <span>Engine code (optional)</span>
+              <input id="ts-engine" type="text" placeholder="e.g. 1FZ-FE, 2UZ-FE, 3UR-FE" />
+            </label>
+            <label>
+              <span>Symptoms</span>
+              <textarea
+                id="ts-symptoms"
+                rows="6"
+                placeholder="e.g. After 20 minutes of highway driving the temp gauge climbs into the red. No visible coolant leak. Heater blows cold. 1996 80 Series with 220k miles."
+                required
+              ></textarea>
+            </label>
+            <button type="submit" class="primary">Diagnose</button>
+          </form>
+        </div>
+
+        <div id="troubleshoot-result" class="result hidden"></div>
+      </section>
+
+      <!-- RESOURCES -------------------------------------------------------- -->
+      <section id="tab-resources" class="tab-panel" role="tabpanel">
+        <div class="card">
+          <h2>Repair resources</h2>
+          <p class="muted">
+            Filter the curated library: factory service manuals, write-ups, YouTube channels,
+            parts vendors, and ih8mud forums.
+          </p>
+          <form id="resources-form" class="grid-3">
+            <label>
+              <span>Series</span>
+              <select id="rs-series">
+                <option value="">All series</option>
+              </select>
+            </label>
+            <label>
+              <span>System</span>
+              <select id="rs-system">
+                <option value="">All systems</option>
+              </select>
+            </label>
+            <label>
+              <span>Type</span>
+              <select id="rs-type">
+                <option value="">All types</option>
+              </select>
+            </label>
+            <label class="span-3">
+              <span>Search keyword (optional)</span>
+              <input id="rs-q" type="text" placeholder="e.g. head gasket, birfield, AHC, KDSS" />
+            </label>
+          </form>
+        </div>
+
+        <div id="resources-result" class="result"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Not affiliated with Toyota, Lexus, or ih8mud.com. VIN data via the free public
+        <a href="https://vpic.nhtsa.dot.gov/api/" target="_blank" rel="noopener">NHTSA vPIC API</a>.
+      </p>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

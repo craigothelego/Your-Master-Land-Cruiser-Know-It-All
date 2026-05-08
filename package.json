@@ -1,0 +1,19 @@
+{
+  "name": "your-master-land-cruiser-know-it-all",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Resource and troubleshooting guide for Toyota Land Cruiser enthusiasts: VIN lookup, AI-powered troubleshooting, and curated repair resources.",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}
