@@ -3,11 +3,19 @@
  *
  * Resources are tagged by `seriesIds` (matching ids in landcruiser-series.js)
  * and by `systems` (cooling, electrical, drivetrain, etc.) so they can be
- * filtered for the user. Forum search URLs into ih8mud.com are generated
- * dynamically per series in server.js.
+ * filtered for the user.
  *
- * Sources are curated and skew toward the strongest community references.
- * URLs may go stale over time -- treat this file as the place to update them.
+ * URL policy:
+ *   - Top-level domains and forum sub-forum URLs are kept ONLY when verified
+ *     (e.g. via web search of the actual forum).
+ *   - For everything else (specific write-ups, FSM threads we can't verify),
+ *     we use Google site-scoped search URLs (`site:forum.ih8mud.com ...`)
+ *     so the user lands on a Google results page where every link is a real
+ *     ih8mud thread ranked by relevance. This is more reliable than guessing
+ *     thread IDs.
+ *
+ * If you find a known-good direct thread URL, replace the site-search entry
+ * here.
  */
 
 const SYSTEMS = [
@@ -29,8 +37,35 @@ const SYSTEMS = [
   'general',
 ];
 
+// ---------------------------------------------------------------------------
+// Verified ih8mud sub-forum URLs (confirmed via direct lookup).
+// Anything not in this map falls back to whole-site Google search.
+// ---------------------------------------------------------------------------
+const IH8MUD_SUBFORUM_PATH = {
+  '40-series': '/forums/40-55-series-tech.8/',
+  '55-series': '/forums/40-55-series-tech.8/',
+  '60-series': '/forums/60-series-wagons.27/',
+  '70-series': '/forums/70-series-tech.86/',
+  '80-series': '/forums/80-series-tech.9/',
+  lx450: '/forums/80-series-tech.9/',
+  '100-series': '/forums/100-series-cruisers.26/',
+  lx470: '/forums/100-series-cruisers.26/',
+  '200-series': '/forums/200-series-cruisers.136/',
+  lx570: '/forums/200-series-cruisers.136/',
+  '300-series': '/forums/300-series-lc300-lx600-lx700h.393/',
+  lx600: '/forums/300-series-lc300-lx600-lx700h.393/',
+};
+
+/** Build a Google site-search URL scoped to ih8mud (and a sub-forum if known). */
+function googleIh8mud(seriesId, query) {
+  const path = IH8MUD_SUBFORUM_PATH[seriesId];
+  const site = path ? `site:forum.ih8mud.com${path}` : 'site:forum.ih8mud.com';
+  const q = `${site} ${query || ''}`.trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
+
 const RESOURCES = [
-  // ---- Forum hubs ----------------------------------------------------------
+  // ---- Top-level forum hubs (verified domains) -----------------------------
   {
     id: 'ih8mud-home',
     title: 'ih8mud.com - the Land Cruiser community',
@@ -38,7 +73,7 @@ const RESOURCES = [
     type: 'forum',
     seriesIds: ['40-series', '55-series', '60-series', '70-series', '80-series', '100-series', '200-series', '300-series', 'j250', 'lx450', 'lx470', 'lx570', 'lx600', 'prado-j90', 'prado-j120', 'prado-j150'],
     systems: ['general'],
-    notes: 'The single most important Land Cruiser community on the internet. Per-series sub-forums; strong RoW/diesel coverage too.',
+    notes: 'The most active Land Cruiser community on the internet. Per-series sub-forums; strong RoW/diesel coverage too.',
   },
   {
     id: 'aulro',
@@ -68,17 +103,43 @@ const RESOURCES = [
     notes: 'International overlanders; very useful for 70-series and Prado overland builds.',
   },
 
-  // ---- Per-series ih8mud sub-forums ---------------------------------------
-  { id: 'ih8mud-40', title: 'ih8mud - 40 Series Tech', url: 'https://forum.ih8mud.com/forums/40-series-tech.41/', type: 'forum', seriesIds: ['40-series', '55-series'], systems: ['general'] },
-  { id: 'ih8mud-60', title: 'ih8mud - 60 Series Tech', url: 'https://forum.ih8mud.com/forums/60-series-wagons.42/', type: 'forum', seriesIds: ['60-series'], systems: ['general'] },
-  { id: 'ih8mud-70', title: 'ih8mud - 70 Series Tech', url: 'https://forum.ih8mud.com/forums/70-series-tech.99/', type: 'forum', seriesIds: ['70-series'], systems: ['general'] },
-  { id: 'ih8mud-80', title: 'ih8mud - 80 Series Tech', url: 'https://forum.ih8mud.com/forums/80-series-tech.43/', type: 'forum', seriesIds: ['80-series', 'lx450'], systems: ['general'] },
-  { id: 'ih8mud-100', title: 'ih8mud - 100 Series', url: 'https://forum.ih8mud.com/forums/100-series-cruisers.44/', type: 'forum', seriesIds: ['100-series', 'lx470'], systems: ['general'] },
-  { id: 'ih8mud-200', title: 'ih8mud - 200 Series', url: 'https://forum.ih8mud.com/forums/200-series-cruisers.139/', type: 'forum', seriesIds: ['200-series', 'lx570'], systems: ['general'] },
-  { id: 'ih8mud-300', title: 'ih8mud - 300 Series', url: 'https://forum.ih8mud.com/forums/300-series-cruisers.231/', type: 'forum', seriesIds: ['300-series', 'lx600'], systems: ['general'] },
-  { id: 'ih8mud-j250', title: 'ih8mud - 250 Series', url: 'https://forum.ih8mud.com/forums/250-series.241/', type: 'forum', seriesIds: ['j250'], systems: ['general'] },
-  { id: 'ih8mud-prado', title: 'ih8mud - Prado (90/120/150)', url: 'https://forum.ih8mud.com/forums/prado.85/', type: 'forum', seriesIds: ['prado-j90', 'prado-j120', 'prado-j150'], systems: ['general'] },
-  { id: 'ih8mud-diesel', title: 'ih8mud - Diesel Tech (RoW engines)', url: 'https://forum.ih8mud.com/forums/diesel-tech.45/', type: 'forum', seriesIds: ['60-series', '70-series', '80-series', '100-series', '200-series', 'prado-j90', 'prado-j120', 'prado-j150'], systems: ['engine', 'fuel'], notes: 'Catch-all for 1HZ, 1HD-T/FT/FTE, 12H-T, 1KZ-TE, 1KD-FTV, 1VD-FTV, 1GD-FTV diesels.' },
+  // ---- Verified ih8mud sub-forum URLs --------------------------------------
+  { id: 'ih8mud-40', title: 'ih8mud - 40 / 55 Series Tech', url: 'https://forum.ih8mud.com/forums/40-55-series-tech.8/', type: 'forum', seriesIds: ['40-series', '55-series'], systems: ['general'] },
+  { id: 'ih8mud-60', title: 'ih8mud - 60 Series Wagons', url: 'https://forum.ih8mud.com/forums/60-series-wagons.27/', type: 'forum', seriesIds: ['60-series'], systems: ['general'] },
+  { id: 'ih8mud-70', title: 'ih8mud - 70 Series Tech', url: 'https://forum.ih8mud.com/forums/70-series-tech.86/', type: 'forum', seriesIds: ['70-series'], systems: ['general'] },
+  { id: 'ih8mud-80', title: 'ih8mud - 80 Series Tech', url: 'https://forum.ih8mud.com/forums/80-series-tech.9/', type: 'forum', seriesIds: ['80-series', 'lx450'], systems: ['general'] },
+  { id: 'ih8mud-100', title: 'ih8mud - 100 Series Cruisers', url: 'https://forum.ih8mud.com/forums/100-series-cruisers.26/', type: 'forum', seriesIds: ['100-series', 'lx470'], systems: ['general'] },
+  { id: 'ih8mud-200', title: 'ih8mud - 200 Series Cruisers', url: 'https://forum.ih8mud.com/forums/200-series-cruisers.136/', type: 'forum', seriesIds: ['200-series', 'lx570'], systems: ['general'] },
+  { id: 'ih8mud-300', title: 'ih8mud - 300 Series / LX600 / LX700h', url: 'https://forum.ih8mud.com/forums/300-series-lc300-lx600-lx700h.393/', type: 'forum', seriesIds: ['300-series', 'lx600'], systems: ['general'] },
+
+  // ---- ih8mud sections we don't have a verified URL for: site-search hubs --
+  {
+    id: 'ih8mud-j250-search',
+    title: 'ih8mud - 250 Series threads (search)',
+    url: googleIh8mud('j250', '250 series'),
+    type: 'forum',
+    seriesIds: ['j250'],
+    systems: ['general'],
+    notes: 'Live Google search of ih8mud for J250-related threads.',
+  },
+  {
+    id: 'ih8mud-prado-search',
+    title: 'ih8mud - Prado threads (search)',
+    url: 'https://www.google.com/search?q=' + encodeURIComponent('site:forum.ih8mud.com Prado'),
+    type: 'forum',
+    seriesIds: ['prado-j90', 'prado-j120', 'prado-j150'],
+    systems: ['general'],
+    notes: 'Live Google search of ih8mud for Prado threads (J90 / J120 / J150).',
+  },
+  {
+    id: 'ih8mud-diesel-search',
+    title: 'ih8mud - Diesel Tech threads (search)',
+    url: 'https://www.google.com/search?q=' + encodeURIComponent('site:forum.ih8mud.com diesel 1HZ 1HD-FT 1HD-FTE 1KZ-TE 1KD-FTV 1VD-FTV 1GD-FTV'),
+    type: 'forum',
+    seriesIds: ['60-series', '70-series', '80-series', '100-series', '200-series', 'prado-j90', 'prado-j120', 'prado-j150'],
+    systems: ['engine', 'fuel'],
+    notes: '1HZ, 1HD-FTE, 1KZ-TE, 1KD-FTV, 1VD-FTV, 1GD-FTV diesels.',
+  },
 
   // ---- Factory Service Manuals --------------------------------------------
   {
@@ -96,40 +157,101 @@ const RESOURCES = [
     notes: 'Curated FSM index covering most Land Cruiser and Lexus LX generations.',
   },
   {
-    id: 'fsm-80-series',
-    title: 'FZJ80 Factory Service Manual (community-hosted PDFs)',
-    url: 'https://forum.ih8mud.com/threads/fsm-fzj80-factory-service-manual.51/',
+    id: 'fsm-fzj80-1994',
+    title: 'FSM 1994 FZJ80 (community PDF on ih8mud)',
+    url: 'https://forum.ih8mud.com/threads/fsm-1994-fzj80.1252989/',
     type: 'fsm',
     seriesIds: ['80-series', 'lx450'],
     systems: ['general'],
-    notes: 'Community-hosted FSM scans for the 80 Series.',
+    notes: 'Verified ih8mud thread with a Google-Drive-hosted PDF compiled from Toyota TIS.',
   },
   {
-    id: 'fsm-100-series',
-    title: '100 Series / LX470 FSM thread',
-    url: 'https://forum.ih8mud.com/threads/100-series-fsm.36842/',
+    id: 'fsm-search-40',
+    title: 'FSM threads on ih8mud - 40 / 55 Series',
+    url: googleIh8mud('40-series', 'FSM factory service manual'),
     type: 'fsm',
-    seriesIds: ['100-series', 'lx470'],
+    seriesIds: ['40-series', '55-series'],
     systems: ['general'],
   },
   {
-    id: 'fsm-60-series',
-    title: 'FJ60 / FJ62 FSM thread',
-    url: 'https://forum.ih8mud.com/threads/fj60-fj62-fsm-pdfs.17074/',
+    id: 'fsm-search-60',
+    title: 'FSM threads on ih8mud - 60 Series',
+    url: googleIh8mud('60-series', 'FSM factory service manual FJ60 FJ62'),
     type: 'fsm',
     seriesIds: ['60-series'],
     systems: ['general'],
   },
   {
-    id: 'fsm-40-series',
-    title: 'FJ40 FSM thread',
-    url: 'https://forum.ih8mud.com/threads/fj40-fsm-and-other-resources.5034/',
+    id: 'fsm-search-100',
+    title: 'FSM threads on ih8mud - 100 Series / LX470',
+    url: googleIh8mud('100-series', 'FSM factory service manual UZJ100 LX470'),
     type: 'fsm',
-    seriesIds: ['40-series', '55-series'],
+    seriesIds: ['100-series', 'lx470'],
+    systems: ['general'],
+  },
+  {
+    id: 'fsm-search-200',
+    title: 'FSM threads on ih8mud - 200 Series / LX570',
+    url: googleIh8mud('200-series', 'FSM factory service manual URJ200 LX570'),
+    type: 'fsm',
+    seriesIds: ['200-series', 'lx570'],
     systems: ['general'],
   },
 
-  // ---- YouTube channels ----------------------------------------------------
+  // ---- High-value individual threads (verified) ---------------------------
+  {
+    id: 'ih8mud-80-faq',
+    title: 'ih8mud - 80 Series FAQ (general info, modifications, repairs)',
+    url: 'https://forum.ih8mud.com/threads/80-series-faq.84888/',
+    type: 'guide',
+    seriesIds: ['80-series', 'lx450'],
+    systems: ['general'],
+    notes: 'Pinned, regularly updated 80-series knowledge base on ih8mud.',
+  },
+
+  // ---- Common-issue write-ups (search-based; clicking lands on real threads)
+  {
+    id: 'guide-80-birfields',
+    title: '80 Series birfield / knuckle service threads',
+    url: googleIh8mud('80-series', 'birfield knuckle rebuild write-up'),
+    type: 'guide',
+    seriesIds: ['80-series', 'lx450'],
+    systems: ['axles', 'drivetrain'],
+  },
+  {
+    id: 'guide-100-starter',
+    title: '100 Series / LX470 starter replacement (under-intake)',
+    url: googleIh8mud('100-series', '2UZ-FE starter replacement under intake write-up'),
+    type: 'guide',
+    seriesIds: ['100-series', 'lx470'],
+    systems: ['electrical', 'engine'],
+  },
+  {
+    id: 'guide-lx470-ahc',
+    title: 'LX470 AHC (Active Height Control) - explained / service',
+    url: googleIh8mud('lx470', 'AHC active height control accumulator globe pressure'),
+    type: 'guide',
+    seriesIds: ['lx470'],
+    systems: ['ahc', 'suspension'],
+  },
+  {
+    id: 'guide-200-kdss',
+    title: '200 Series KDSS - explained / service',
+    url: googleIh8mud('200-series', 'KDSS kinetic dynamic suspension explained service'),
+    type: 'guide',
+    seriesIds: ['200-series', 'lx570'],
+    systems: ['suspension'],
+  },
+  {
+    id: 'guide-1fz-phh',
+    title: '1FZ-FE PHH (#6 cylinder coolant pipe) - 80 Series',
+    url: googleIh8mud('80-series', '1FZ-FE PHH pesky heater hose number 6 coolant pipe'),
+    type: 'guide',
+    seriesIds: ['80-series', 'lx450'],
+    systems: ['cooling', 'engine'],
+  },
+
+  // ---- YouTube channels (verified channels) -------------------------------
   {
     id: 'yt-tinkerers',
     title: "Tinkerer's Adventure (YouTube)",
@@ -165,7 +287,7 @@ const RESOURCES = [
     systems: ['general', 'suspension'],
   },
 
-  // ---- Parts vendors -------------------------------------------------------
+  // ---- Parts vendors (verified domains) -----------------------------------
   {
     id: 'cruiser-outfitters-parts',
     title: 'Cruiser Outfitters (parts)',
@@ -220,8 +342,6 @@ const RESOURCES = [
     systems: ['general'],
     notes: 'Aftermarket and some OEM parts; great for routine maintenance items. Ships internationally but US-focused.',
   },
-
-  // ---- International parts vendors ----------------------------------------
   {
     id: 'arb',
     title: 'ARB 4x4 Accessories (global)',
@@ -285,42 +405,6 @@ const RESOURCES = [
     systems: ['general', 'suspension'],
     notes: 'Aussie 4WD chain; bullbars, suspension kits, drawer systems for the local Land Cruiser/Prado fleet.',
   },
-
-  // ---- Common-issue write-ups (a few starter examples) --------------------
-  {
-    id: '80-birfields',
-    title: '80 Series birfield re-pack write-up',
-    url: 'https://forum.ih8mud.com/threads/birfield-knuckle-rebuild-write-up.6477/',
-    type: 'guide',
-    seriesIds: ['80-series', 'lx450'],
-    systems: ['axles', 'drivetrain'],
-    notes: 'The classic 80-series knuckle service walk-through.',
-  },
-  {
-    id: '100-starter',
-    title: '100 Series / LX470 starter replacement (under-intake)',
-    url: 'https://forum.ih8mud.com/threads/100-series-starter-replacement-write-up.105/',
-    type: 'guide',
-    seriesIds: ['100-series', 'lx470'],
-    systems: ['electrical', 'engine'],
-    notes: 'Famous 2UZ-FE starter job; intake manifold has to come off.',
-  },
-  {
-    id: 'lx470-ahc',
-    title: 'LX470 AHC (Active Height Control) reference',
-    url: 'https://forum.ih8mud.com/threads/ahc-system-explained.50027/',
-    type: 'guide',
-    seriesIds: ['lx470'],
-    systems: ['ahc', 'suspension'],
-  },
-  {
-    id: '200-kdss',
-    title: '200 Series KDSS overview & service',
-    url: 'https://forum.ih8mud.com/threads/kdss-explained.488820/',
-    type: 'guide',
-    seriesIds: ['200-series', 'lx570'],
-    systems: ['suspension'],
-  },
 ];
 
 /**
@@ -335,46 +419,12 @@ const RESOURCE_TYPES = [
 ];
 
 /**
- * Build an ih8mud forum search URL scoped to a particular series sub-forum.
- *
- * @param {string} seriesId
- * @param {string} query
- * @returns {string|null}
- */
-/**
  * Build a URL that lands the user on a list of ACTUAL ih8mud threads about
- * the given query. We use Google's site-scoped search restricted to the right
- * sub-forum URL path because:
- *   - ih8mud's internal search often requires login and gates results
- *   - Google's results are direct thread links ranked by relevance
- *   - The user clicks the top hit and is reading the thread
+ * the given query, using Google's site-scoped search restricted to the right
+ * sub-forum path (when known).
  */
 function ih8mudSearchUrl(seriesId, query) {
-  const subforumPath = {
-    '40-series': '/forums/40-series-tech.41/',
-    '55-series': '/forums/40-series-tech.41/',
-    '60-series': '/forums/60-series-wagons.42/',
-    '70-series': '/forums/70-series-tech.99/',
-    '80-series': '/forums/80-series-tech.43/',
-    lx450: '/forums/80-series-tech.43/',
-    '100-series': '/forums/100-series-cruisers.44/',
-    lx470: '/forums/100-series-cruisers.44/',
-    '200-series': '/forums/200-series-cruisers.139/',
-    lx570: '/forums/200-series-cruisers.139/',
-    '300-series': '/forums/300-series-cruisers.231/',
-    lx600: '/forums/300-series-cruisers.231/',
-    j250: '/forums/250-series.241/',
-    'prado-j90': '/forums/prado.85/',
-    'prado-j120': '/forums/prado.85/',
-    'prado-j150': '/forums/prado.85/',
-  }[seriesId];
-  // Tighten Google's site scope to the specific sub-forum path when known so
-  // results stay on-topic for the user's series.
-  const site = subforumPath
-    ? `site:forum.ih8mud.com${subforumPath}`
-    : 'site:forum.ih8mud.com';
-  const q = `${site} ${query || ''}`.trim();
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+  return googleIh8mud(seriesId, query);
 }
 
 /**
