@@ -468,27 +468,15 @@ function renderTroubleshootResult(result, seriesId) {
       ${
         related || c.ih8mudSearch
           ? `<div class="related-list">
-              <h4>See also</h4>
+              <h4>Related ih8mud threads &amp; resources</h4>
               <ul>${related}${
               c.ih8mudSearch
-                ? `<li><a href="${escapeHtml(c.ih8mudSearch)}" target="_blank" rel="noopener">Search ih8mud forum for this</a></li>`
+                ? `<li><a href="${escapeHtml(c.ih8mudSearch)}" target="_blank" rel="noopener">Browse ih8mud threads about this issue \u2192</a></li>`
                 : ''
             }</ul>
             </div>`
           : ''
       }
-    </div>`);
-  }
-
-  if (result.searchKeywords?.length) {
-    out.push(`<div class="card" style="margin-top:14px;">
-      <strong style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Search phrases to try</strong>
-      <ul style="margin:8px 0 0 18px;">${result.searchKeywords
-        .map(
-          (k) =>
-            `<li>${escapeHtml(k)} \u2014 <a target="_blank" rel="noopener" href="https://forum.ih8mud.com/search/?q=${encodeURIComponent(k)}">ih8mud</a> \u00b7 <a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent('Land Cruiser ' + k)}">YouTube</a></li>`,
-        )
-        .join('')}</ul>
     </div>`);
   }
 

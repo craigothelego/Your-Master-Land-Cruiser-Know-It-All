@@ -327,29 +327,40 @@ const RESOURCE_TYPES = [
  * @param {string} query
  * @returns {string|null}
  */
+/**
+ * Build a URL that lands the user on a list of ACTUAL ih8mud threads about
+ * the given query. We use Google's site-scoped search restricted to the right
+ * sub-forum URL path because:
+ *   - ih8mud's internal search often requires login and gates results
+ *   - Google's results are direct thread links ranked by relevance
+ *   - The user clicks the top hit and is reading the thread
+ */
 function ih8mudSearchUrl(seriesId, query) {
-  const map = {
-    '40-series': 41,
-    '55-series': 41,
-    '60-series': 42,
-    '70-series': 99,
-    '80-series': 43,
-    'lx450': 43,
-    '100-series': 44,
-    'lx470': 44,
-    '200-series': 139,
-    'lx570': 139,
-    '300-series': 231,
-    'lx600': 231,
-    'j250': 241,
-    'prado-j90': 85,
-    'prado-j120': 85,
-    'prado-j150': 85,
-  };
-  const forumId = map[seriesId];
-  const q = encodeURIComponent(query || '');
-  if (!forumId) return `https://forum.ih8mud.com/search/?q=${q}`;
-  return `https://forum.ih8mud.com/search/?q=${q}&c[nodes][0]=${forumId}`;
+  const subforumPath = {
+    '40-series': '/forums/40-series-tech.41/',
+    '55-series': '/forums/40-series-tech.41/',
+    '60-series': '/forums/60-series-wagons.42/',
+    '70-series': '/forums/70-series-tech.99/',
+    '80-series': '/forums/80-series-tech.43/',
+    lx450: '/forums/80-series-tech.43/',
+    '100-series': '/forums/100-series-cruisers.44/',
+    lx470: '/forums/100-series-cruisers.44/',
+    '200-series': '/forums/200-series-cruisers.139/',
+    lx570: '/forums/200-series-cruisers.139/',
+    '300-series': '/forums/300-series-cruisers.231/',
+    lx600: '/forums/300-series-cruisers.231/',
+    j250: '/forums/250-series.241/',
+    'prado-j90': '/forums/prado.85/',
+    'prado-j120': '/forums/prado.85/',
+    'prado-j150': '/forums/prado.85/',
+  }[seriesId];
+  // Tighten Google's site scope to the specific sub-forum path when known so
+  // results stay on-topic for the user's series.
+  const site = subforumPath
+    ? `site:forum.ih8mud.com${subforumPath}`
+    : 'site:forum.ih8mud.com';
+  const q = `${site} ${query || ''}`.trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
 }
 
 /**
