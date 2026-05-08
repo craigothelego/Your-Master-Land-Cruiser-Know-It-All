@@ -82,6 +82,20 @@ const RESOURCES = [
 
   // ---- Factory Service Manuals --------------------------------------------
   {
+    id: 'fsm-cruisercult',
+    title: 'Cruiser Cult - Factory Service Manuals (FSM hub)',
+    url: 'https://www.cruisercult.com/factory-service-manuals',
+    type: 'fsm',
+    seriesIds: [
+      '40-series', '55-series', '60-series', '70-series',
+      '80-series', '100-series', '200-series', '300-series',
+      'lx450', 'lx470', 'lx570', 'lx600',
+      'prado-j90', 'prado-j120', 'prado-j150', 'j250',
+    ],
+    systems: ['general'],
+    notes: 'Curated FSM index covering most Land Cruiser and Lexus LX generations.',
+  },
+  {
     id: 'fsm-80-series',
     title: 'FZJ80 Factory Service Manual (community-hosted PDFs)',
     url: 'https://forum.ih8mud.com/threads/fsm-fzj80-factory-service-manual.51/',
