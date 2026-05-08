@@ -20,67 +20,15 @@
         </div>
       </div>
       <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="vin" role="tab" aria-selected="true">VIN Lookup</button>
-        <button class="tab" data-tab="troubleshoot" role="tab" aria-selected="false">Troubleshoot</button>
+        <button class="tab active" data-tab="troubleshoot" role="tab" aria-selected="true">Troubleshoot</button>
+        <button class="tab" data-tab="vin" role="tab" aria-selected="false">VIN Lookup</button>
         <button class="tab" data-tab="resources" role="tab" aria-selected="false">Resources</button>
       </nav>
     </header>
 
     <main>
-      <!-- HERO GALLERY ----------------------------------------------------- -->
-      <section class="hero-gallery" aria-label="Featured Land Cruiser generations">
-        <button class="hero-card" data-series="40-series" type="button">
-          <img src="/images/fj40.jpg" alt="Toyota Land Cruiser 40 Series (FJ40) on a desert trail" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">1960 - 1984</span>
-            <span class="hero-title">40 Series</span>
-            <span class="hero-sub">FJ40 / BJ40 / HJ45</span>
-          </div>
-        </button>
-        <button class="hero-card" data-series="60-series" type="button">
-          <img src="/images/fj60.jpg" alt="Toyota Land Cruiser 60 Series (FJ60) station wagon in a forest" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">1980 - 1990</span>
-            <span class="hero-title">60 Series</span>
-            <span class="hero-sub">FJ60 / FJ62 / HJ61</span>
-          </div>
-        </button>
-        <button class="hero-card" data-series="70-series" type="button">
-          <img src="/images/land-cruiser-70.jpg" alt="Toyota Land Cruiser 70 Series troop carrier in the outback" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">1984 - present</span>
-            <span class="hero-title">70 Series</span>
-            <span class="hero-sub">HZJ75 / VDJ79 / Troopy</span>
-          </div>
-        </button>
-        <button class="hero-card" data-series="80-series" type="button">
-          <img src="/images/fzj80.jpg" alt="Toyota Land Cruiser 80 Series (FZJ80) on a rocky desert overlook" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">1990 - 1997</span>
-            <span class="hero-title">80 Series</span>
-            <span class="hero-sub">FZJ80 / HDJ80 / 1FZ-FE</span>
-          </div>
-        </button>
-        <button class="hero-card" data-series="100-series" type="button">
-          <img src="/images/uzj100.jpg" alt="Toyota Land Cruiser 100 Series (UZJ100) at sunset" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">1998 - 2007</span>
-            <span class="hero-title">100 Series</span>
-            <span class="hero-sub">UZJ100 / 2UZ-FE V8</span>
-          </div>
-        </button>
-        <button class="hero-card" data-series="200-series" type="button">
-          <img src="/images/urj200.jpg" alt="Toyota Land Cruiser 200 Series (URJ200) on a mountain road" loading="lazy" />
-          <div class="hero-overlay">
-            <span class="hero-eyebrow">2008 - 2021</span>
-            <span class="hero-title">200 Series</span>
-            <span class="hero-sub">URJ200 / 3UR-FE V8</span>
-          </div>
-        </button>
-      </section>
-
       <!-- VIN LOOKUP ------------------------------------------------------- -->
-      <section id="tab-vin" class="tab-panel active" role="tabpanel">
+      <section id="tab-vin" class="tab-panel" role="tabpanel">
         <div class="card">
           <h2>Decode your VIN</h2>
           <p class="muted">
@@ -135,47 +83,123 @@
         <div id="vin-result" class="result hidden"></div>
       </section>
 
-      <!-- TROUBLESHOOT ----------------------------------------------------- -->
-      <section id="tab-troubleshoot" class="tab-panel" role="tabpanel">
-        <div class="card">
-          <h2>Describe your issue</h2>
-          <p class="muted">
-            Tell us what's happening. The more specific, the better - sounds, smells, when it
-            happens, recent work done. We'll suggest likely causes, diagnostic steps, parts likely
-            needed, and the resources to back them up. Works for petrol and diesel engines in any
-            market. Cost estimates are USD; local labor and parts vary by region.
+      <!-- TROUBLESHOOT (default landing) ---------------------------------- -->
+      <section id="tab-troubleshoot" class="tab-panel active" role="tabpanel">
+        <div class="hero-prompt">
+          <h2>What's wrong with your Land Cruiser?</h2>
+          <p class="prompt-sub">
+            Describe the symptoms - sounds, smells, when it happens, recent work done.
+            We'll suggest likely causes, diagnostic steps, parts, and resources.
           </p>
-          <form id="troubleshoot-form">
-            <div class="grid-2">
+
+          <form id="troubleshoot-form" class="prompt-form">
+            <div class="prompt-shell">
+              <textarea
+                id="ts-symptoms"
+                rows="3"
+                placeholder="e.g. 1996 80 Series, temp gauge climbs into the red after 20 minutes of highway driving. No coolant leak, heater blows cold."
+                required
+              ></textarea>
+              <div class="prompt-bar">
+                <button type="button" class="ghost" id="ts-context-toggle" aria-expanded="false">
+                  + Add vehicle context
+                </button>
+                <button type="submit" class="primary prompt-submit" aria-label="Diagnose">
+                  Diagnose
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="prompt-context hidden" id="ts-context">
               <label>
-                <span>Series (optional)</span>
+                <span>Series</span>
                 <select id="ts-series">
                   <option value="">- not sure / skip -</option>
                 </select>
               </label>
               <label>
-                <span>Year (optional)</span>
+                <span>Year</span>
                 <input id="ts-year" type="number" min="1960" max="2099" placeholder="e.g. 1996" />
               </label>
+              <label>
+                <span>Engine code</span>
+                <input id="ts-engine" type="text" placeholder="e.g. 1FZ-FE, 1HD-FTE, 2UZ-FE" />
+              </label>
             </div>
-            <label>
-              <span>Engine code (optional)</span>
-              <input id="ts-engine" type="text" placeholder="e.g. 1FZ-FE, 2UZ-FE, 3UR-FE" />
-            </label>
-            <label>
-              <span>Symptoms</span>
-              <textarea
-                id="ts-symptoms"
-                rows="6"
-                placeholder="e.g. After 20 minutes of highway driving the temp gauge climbs into the red. No visible coolant leak. Heater blows cold. 1996 80 Series with 220k miles."
-                required
-              ></textarea>
-            </label>
-            <button type="submit" class="primary">Diagnose</button>
           </form>
+
+          <div class="suggestion-chips" aria-label="Common issues">
+            <button class="chip" type="button" data-prompt="My engine cranks but won't fire. No fuel smell, fresh battery, recent tune-up.">Won't start</button>
+            <button class="chip" type="button" data-prompt="The temperature gauge climbs into the red on the highway. No visible coolant leak, heater blows cold.">Overheating</button>
+            <button class="chip" type="button" data-prompt="Rough idle, occasional stall at stop lights. Engine runs fine above 1500 rpm.">Rough idle</button>
+            <button class="chip" type="button" data-prompt="Knocking sound from the engine that gets louder under load. Sounds like it's coming from the bottom end.">Engine knock</button>
+            <button class="chip" type="button" data-prompt="Transmission shifts hard between 2nd and 3rd, sometimes flares between gears.">Hard shifting</button>
+            <button class="chip" type="button" data-prompt="Steering wheel vibrates between 50-65 mph. Goes away above 70 mph. Tires recently balanced.">Highway vibration</button>
+            <button class="chip" type="button" data-prompt="Brakes pulsate and the truck pulls to one side under hard braking.">Brake pulsation</button>
+            <button class="chip" type="button" data-prompt="Coolant smell after driving. Small puddle on the driveway. No visible drip from any specific component.">Coolant leak</button>
+          </div>
         </div>
 
         <div id="troubleshoot-result" class="result hidden"></div>
+
+        <!-- Hero gallery moved here as a "browse by series" affordance -->
+        <section class="hero-gallery-section" aria-label="Featured Land Cruiser generations">
+          <div class="section-header">
+            <h3>Or browse by series</h3>
+            <p class="muted">Click any generation to jump to its resources, manuals, parts, and forum threads.</p>
+          </div>
+          <div class="hero-gallery">
+            <button class="hero-card" data-series="40-series" type="button">
+              <img src="/images/fj40.jpg" alt="Toyota Land Cruiser 40 Series (FJ40) on a desert trail" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">1960 - 1984</span>
+                <span class="hero-title">40 Series</span>
+                <span class="hero-sub">FJ40 / BJ40 / HJ45</span>
+              </div>
+            </button>
+            <button class="hero-card" data-series="60-series" type="button">
+              <img src="/images/fj60.jpg" alt="Toyota Land Cruiser 60 Series (FJ60) station wagon in a forest" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">1980 - 1990</span>
+                <span class="hero-title">60 Series</span>
+                <span class="hero-sub">FJ60 / FJ62 / HJ61</span>
+              </div>
+            </button>
+            <button class="hero-card" data-series="70-series" type="button">
+              <img src="/images/land-cruiser-70.jpg" alt="Toyota Land Cruiser 70 Series troop carrier in the outback" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">1984 - present</span>
+                <span class="hero-title">70 Series</span>
+                <span class="hero-sub">HZJ75 / VDJ79 / Troopy</span>
+              </div>
+            </button>
+            <button class="hero-card" data-series="80-series" type="button">
+              <img src="/images/fzj80.jpg" alt="Toyota Land Cruiser 80 Series (FZJ80) on a rocky desert overlook" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">1990 - 1997</span>
+                <span class="hero-title">80 Series</span>
+                <span class="hero-sub">FZJ80 / HDJ80 / 1FZ-FE</span>
+              </div>
+            </button>
+            <button class="hero-card" data-series="100-series" type="button">
+              <img src="/images/uzj100.jpg" alt="Toyota Land Cruiser 100 Series (UZJ100) at sunset" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">1998 - 2007</span>
+                <span class="hero-title">100 Series</span>
+                <span class="hero-sub">UZJ100 / 2UZ-FE V8</span>
+              </div>
+            </button>
+            <button class="hero-card" data-series="200-series" type="button">
+              <img src="/images/urj200.jpg" alt="Toyota Land Cruiser 200 Series (URJ200) on a mountain road" loading="lazy" />
+              <div class="hero-overlay">
+                <span class="hero-eyebrow">2008 - 2021</span>
+                <span class="hero-title">200 Series</span>
+                <span class="hero-sub">URJ200 / 3UR-FE V8</span>
+              </div>
+            </button>
+          </div>
+        </section>
       </section>
 
       <!-- RESOURCES -------------------------------------------------------- -->

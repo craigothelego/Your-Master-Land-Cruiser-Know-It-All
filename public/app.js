@@ -359,6 +359,44 @@ function renderVinResult(data) {
 
 const tsForm = $('#troubleshoot-form');
 const tsResult = $('#troubleshoot-result');
+const tsSymptoms = $('#ts-symptoms');
+const tsContextToggle = $('#ts-context-toggle');
+const tsContext = $('#ts-context');
+
+// Toggle the optional vehicle-context fields.
+if (tsContextToggle && tsContext) {
+  tsContextToggle.addEventListener('click', () => {
+    const open = tsContext.classList.toggle('hidden') === false;
+    tsContextToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    tsContextToggle.textContent = open ? '- Hide vehicle context' : '+ Add vehicle context';
+    if (open) {
+      const firstField = tsContext.querySelector('select, input');
+      if (firstField) firstField.focus();
+    }
+  });
+}
+
+// Suggestion chips: prefill the textarea and focus, but do NOT auto-submit
+// so the user can edit the prompt before sending.
+$$('.suggestion-chips .chip').forEach((chip) =>
+  chip.addEventListener('click', () => {
+    const text = chip.dataset.prompt || chip.textContent.trim();
+    if (!tsSymptoms) return;
+    tsSymptoms.value = text;
+    tsSymptoms.focus();
+    tsSymptoms.setSelectionRange(text.length, text.length);
+  }),
+);
+
+// Cmd/Ctrl + Enter to submit the prompt from inside the textarea.
+if (tsSymptoms) {
+  tsSymptoms.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      tsForm.dispatchEvent(new Event('submit'));
+    }
+  });
+}
 
 tsForm.addEventListener('submit', async (e) => {
   e.preventDefault();

@@ -119,6 +119,175 @@ main {
   border-bottom-color: var(--accent);
 }
 
+/* ----- Hero prompt (chat-first landing) -------------------------------- */
+
+.hero-prompt {
+  text-align: center;
+  padding: 36px 8px 24px;
+  margin-bottom: 8px;
+}
+
+.hero-prompt h2 {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.prompt-sub {
+  margin: 0 auto 22px;
+  max-width: 620px;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.prompt-form {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.prompt-shell {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: left;
+}
+.prompt-shell:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 6px 28px rgba(224, 122, 44, 0.18);
+}
+.prompt-shell textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 4px 4px 8px;
+  resize: none;
+  min-height: 72px;
+  outline: none;
+}
+.prompt-shell textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.prompt-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+button.ghost:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+button.ghost[aria-expanded="true"] {
+  color: var(--text);
+  background: var(--bg-elev-2);
+  border-color: var(--accent);
+}
+
+button.prompt-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 8px 14px 8px 16px;
+  font-size: 14px;
+}
+
+.prompt-context {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.2fr;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+}
+.prompt-context.hidden {
+  display: none;
+}
+.prompt-context label {
+  margin-bottom: 0;
+}
+@media (max-width: 640px) {
+  .prompt-context {
+    grid-template-columns: 1fr;
+  }
+}
+
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 760px;
+  margin: 22px auto 0;
+}
+.suggestion-chips .chip {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.05s;
+}
+.suggestion-chips .chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.suggestion-chips .chip:active {
+  transform: translateY(1px);
+}
+
+/* ----- "Or browse by series" section header ---------------------------- */
+
+.hero-gallery-section {
+  margin-top: 48px;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.section-header h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+.section-header .muted {
+  margin: 0;
+  font-size: 13px;
+}
+
 /* ----- Hero gallery ----------------------------------------------------- */
 
 .hero-gallery {
