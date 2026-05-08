@@ -509,7 +509,7 @@ app.post('/api/troubleshoot', async (req, res) => {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 2048,
+        max_tokens: 4096,
         temperature: 0.2,
         system: SYSTEM_PROMPT,
         messages: [
@@ -531,6 +531,16 @@ app.post('/api/troubleshoot', async (req, res) => {
     try {
       parsed = JSON.parse(content);
     } catch (_e) {
+      // The most common cause of malformed JSON here is truncation when the
+      // model hits the max_tokens ceiling. Surface that explicitly so the user
+      // knows it's a length issue, not a model quality issue.
+      if (data.stop_reason === 'max_tokens') {
+        return res.status(502).json({
+          error:
+            'AI response was truncated before completing. Try a more focused symptom description, or ask the operator to raise max_tokens.',
+          stopReason: data.stop_reason,
+        });
+      }
       return res.status(502).json({ error: 'AI returned non-JSON response', raw: content });
     }
 
