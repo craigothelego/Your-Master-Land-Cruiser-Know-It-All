@@ -420,7 +420,7 @@ tsForm.addEventListener('submit', async (e) => {
     : 'common Land Cruiser failure modes';
 
   tsResult.innerHTML = `<div class="card loading-card">
-    <div class="loading-head"><span class="spinner"></span><strong>Asking Claude to diagnose this...</strong></div>
+    <div class="loading-head"><span class="spinner"></span><strong>Doing Cruiser Science...</strong></div>
     <ul class="loading-steps">
       <li>Cross-referencing ${escapeHtml(contextLabel)}</li>
       <li>Looking up likely OEM part numbers</li>
