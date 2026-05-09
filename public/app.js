@@ -426,9 +426,27 @@ tsForm.addEventListener('submit', async (e) => {
 
 function renderPartsList(parts) {
   if (!Array.isArray(parts) || parts.length === 0) return '';
-  const VENDOR_KIND_LABEL = { oem: 'OEM', aftermarket: 'Aftermarket', marketplace: 'Marketplace' };
+
+  const VENDOR_KIND_LABEL = {
+    oem: 'OEM',
+    aftermarket: 'Aftermarket',
+    marketplace: 'Marketplace',
+    service: 'Shop',
+  };
+  const CATEGORY_LABEL = {
+    part: 'Part',
+    tire: 'Tires',
+    fluid: 'Fluid',
+    service: 'Service',
+    tool: 'Tool',
+  };
+
   const items = parts
     .map((p) => {
+      const category = (p.category || 'part').toLowerCase();
+      const isService = category === 'service';
+      const isPartLike = category === 'part';
+
       const vendorRows = (p.vendorLinks || [])
         .map(
           (v) =>
@@ -438,8 +456,11 @@ function renderPartsList(parts) {
              </a>`,
         )
         .join('');
+
+      // Only parts get the OEM-number row. Tires, fluids, services, and
+      // tools don't have a Toyota OEM part number attached.
       const oemConf = (p.oemPartNumberConfidence || '').toLowerCase();
-      const oemLine = p.oemPartNumber
+      const oemLine = isPartLike && p.oemPartNumber
         ? `<p class="part-oem">
              <span class="muted">OEM part #:</span>
              <code class="oem-num">${escapeHtml(p.oemPartNumber)}</code>
@@ -448,24 +469,44 @@ function renderPartsList(parts) {
              <span class="oem-disclaimer">verify by VIN before purchase</span>
            </p>`
         : '';
-      return `<li class="part">
+
+      const oemBadge = isPartLike && p.oem
+        ? '<span class="badge oem">OEM recommended</span>'
+        : '';
+
+      const categoryBadge = `<span class="badge category cat-${escapeHtml(category)}">${escapeHtml(CATEGORY_LABEL[category] || category)}</span>`;
+
+      const searchLine =
+        !isService && p.searchTerms && !p.oemPartNumber
+          ? `<p class="part-search"><span class="muted">Search:</span> <code>${escapeHtml(p.searchTerms)}</code></p>`
+          : '';
+
+      const vendorBlock = isService
+        ? `<div class="service-callout">
+             <strong>This is a service, not a part.</strong>
+             <span class="muted">No purchase needed - the work is done by a shop.</span>
+             ${vendorRows ? `<div class="vendor-grid">${vendorRows}</div>` : ''}
+           </div>`
+        : vendorRows
+        ? `<div class="vendor-grid">${vendorRows}</div>`
+        : '';
+
+      return `<li class="part cat-${escapeHtml(category)}">
         <div class="part-head">
           <strong>${escapeHtml(p.name)}</strong>
-          ${p.oem ? '<span class="badge oem">OEM recommended</span>' : ''}
+          ${categoryBadge}
+          ${oemBadge}
         </div>
         ${oemLine}
         ${p.notes ? `<p class="part-notes">${escapeHtml(p.notes)}</p>` : ''}
-        ${
-          p.searchTerms && !p.oemPartNumber
-            ? `<p class="part-search"><span class="muted">Search:</span> <code>${escapeHtml(p.searchTerms)}</code></p>`
-            : ''
-        }
-        ${vendorRows ? `<div class="vendor-grid">${vendorRows}</div>` : ''}
+        ${searchLine}
+        ${vendorBlock}
       </li>`;
     })
     .join('');
+
   return `<div class="parts-list">
-    <h4>Parts list</h4>
+    <h4>Parts &amp; services</h4>
     <ul>${items}</ul>
   </div>`;
 }

@@ -356,14 +356,15 @@ Given the user's symptoms (and, if provided, their vehicle's series, chassis cod
       "diagnosticSteps": string[],         // 2-6 concrete checks the owner or a shop should perform
       "estimatedCostUsd": { "low": number, "high": number } | null,
       "diyDifficulty": "easy" | "moderate" | "advanced" | "shop-only",
-      "partsNeeded": [                     // 0-8 parts likely required to resolve this cause
+      "partsNeeded": [                     // 0-8 items required to resolve this cause - parts AND/OR services
         {
-          "name": string,                  // common part name, e.g. "Thermostat (with gasket)"
-          "notes": string,                 // why it's likely needed, OEM vs aftermarket guidance, or "diagnostic only"
-          "searchTerms": string,           // good keywords for parts vendor search, e.g. "1FZ-FE thermostat 88C"
-          "oem": boolean,                  // true if user should buy OEM specifically, false if aftermarket is acceptable
-          "oemPartNumber": string | null,  // Toyota / Lexus OEM part number when you are confident it's correct for the user's specific year/series/engine. Use Toyota's hyphenated format (e.g., "16400-66060"). Null when unsure.
-          "oemPartNumberConfidence": "high" | "medium" | "low" | null  // confidence in the OEM part number above. "high" = canonical, well-documented for this model+year. "medium" = correct for the engine/series family but may differ by sub-model or production date. "low" = best-guess. Null when oemPartNumber is null.
+          "name": string,                  // common name, e.g. "Thermostat (with gasket)", "Wheel balance & rotation", "Replacement tires (set of 4)"
+          "category": "part" | "tire" | "fluid" | "service" | "tool",  // controls how the UI links to vendors. Use "service" when the resolution is labor (alignment, balancing, ECU reset, key programming, diagnostics, AC recharge, etc.) and no physical part is purchased by the owner. Use "tire" only for tires themselves (tire-related services are "service"). Use "fluid" for oil, coolant, ATF, gear oil, brake/clutch fluid, refrigerant. Use "tool" if a special tool is needed for the job. Default is "part".
+          "notes": string,                 // why it's needed, OEM vs aftermarket guidance, or "diagnostic only"
+          "searchTerms": string,           // good keywords for vendor search, e.g. "1FZ-FE thermostat 88C", or for tires: "275/70R16 LT all-terrain"
+          "oem": boolean,                  // true if user should buy OEM specifically, false if aftermarket is acceptable. Ignored when category is "tire" or "service".
+          "oemPartNumber": string | null,  // Toyota / Lexus OEM part number when you are confident it's correct for the user's specific year/series/engine. Use Toyota's hyphenated format (e.g., "16400-66060"). Null when unsure or when category is "tire" / "service".
+          "oemPartNumberConfidence": "high" | "medium" | "low" | null  // confidence in the OEM part number above. "high" = canonical. "medium" = correct family, may vary by sub-model. "low" = best-guess. Null when no number provided.
         }
       ]
     }
@@ -383,7 +384,8 @@ Rules:
   - "KDSS cross-link" only for Prado J120/J150, 200 series, and FJ Cruiser/4Runner/GX siblings
   - "1VD-FTV cracked exhaust manifold" for VDJ200 / VDJ79
 - Provide OEM Toyota / Lexus part numbers when you are CONFIDENT they are correct for the user's specific year + series + engine. Use the canonical hyphenated Toyota format (e.g., "16400-66060", "90916-03075"). When in doubt about which sub-variant applies, mark oemPartNumberConfidence as "medium" or "low" and tell the user to verify by VIN. NEVER make up plausible-looking numbers - leave the field null instead.
-- Always provide good searchTerms (engine code + part name + series) so even when the OEM number is unknown, vendor search returns useful results.
+- Always provide good searchTerms (engine code + part name + series, or tire size, etc.) so even when the OEM number is unknown, vendor search returns useful results.
+- Set partsNeeded[].category honestly. If the resolution is "have a shop balance the wheels" or "get an alignment" or "have the dealer reprogram the key", that's category "service" - do NOT pad it with random replacement parts. Only list actual physical parts the owner needs to buy.
 - For each part, set oem=true when factory quality matters (cooling system parts, sensors, gaskets, water pumps, head gaskets, AHC components, KDSS components, diesel injectors and seals, common-rail components) and oem=false when aftermarket is fine (brake pads, filters, belts, hoses where Gates/Aisin/Denso are common).
 - estimatedCostUsd is in USD; remind users in your explanation that local labor rates and parts availability vary by region, especially for RoW-only diesel parts.
 - If the cause is purely diagnostic (e.g., "loose ground"), partsNeeded can be an empty array or a single entry with notes "diagnostic only".
@@ -392,7 +394,7 @@ Rules:
 `;
 
 /**
- * Curated parts-vendor list. Each entry knows how to build a search URL for
+ * Per-category vendor lists. Each entry knows how to build a search URL for
  * a given query. Where a vendor's internal search is unreliable or unknown,
  * we fall back to Google site-scoped search (always lands the user on real
  * indexed product pages from that vendor).
@@ -417,48 +419,110 @@ const PARTS_VENDORS = [
   { vendor: 'eBay Motors', kind: 'marketplace', direct: (q) => `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}&_sacat=6028` },
 ];
 
+const TIRE_VENDORS = [
+  { vendor: 'Tire Rack', kind: 'aftermarket', direct: (q) => `https://www.google.com/search?q=site%3Atirerack.com+${encodeURIComponent(q)}` },
+  { vendor: 'Discount Tire', kind: 'aftermarket', direct: (q) => `https://www.google.com/search?q=site%3Adiscounttire.com+${encodeURIComponent(q)}` },
+  { vendor: 'Simple Tire', kind: 'aftermarket', direct: (q) => `https://www.google.com/search?q=site%3Asimpletire.com+${encodeURIComponent(q)}` },
+  { vendor: 'Costco Tires', kind: 'aftermarket', direct: (q) => `https://www.google.com/search?q=site%3Acostco.com+tires+${encodeURIComponent(q)}` },
+  { vendor: 'Amazon', kind: 'marketplace', direct: (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q + ' tires')}&i=automotive` },
+];
+
+const FLUID_VENDORS = [
+  { vendor: 'Olathe Toyota Parts (OEM fluids)', kind: 'oem', site: 'olathetoyotaparts.com' },
+  { vendor: 'PartSouq (OEM fluids)', kind: 'oem', site: 'partsouq.com' },
+  { vendor: 'Amazon', kind: 'marketplace', direct: (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}&i=automotive` },
+  { vendor: 'RockAuto', kind: 'aftermarket', site: 'rockauto.com' },
+  { vendor: 'Walmart', kind: 'marketplace', direct: (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}` },
+];
+
+const TOOL_VENDORS = [
+  { vendor: 'Amazon', kind: 'marketplace', direct: (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}&i=automotive` },
+  { vendor: 'Harbor Freight', kind: 'aftermarket', direct: (q) => `https://www.google.com/search?q=site%3Aharborfreight.com+${encodeURIComponent(q)}` },
+  { vendor: 'Toyota SST tools (PartSouq)', kind: 'oem', direct: (q) => `https://www.google.com/search?q=site%3Apartsouq.com+SST+${encodeURIComponent(q)}` },
+  { vendor: 'eBay Motors', kind: 'marketplace', direct: (q) => `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}&_sacat=6028` },
+];
+
+/** Helper: build a URL for a vendor entry given the query. */
+function vendorUrl(v, query) {
+  if (v.direct) return v.direct(query);
+  return `https://www.google.com/search?q=site%3A${v.site}+${encodeURIComponent(query)}`;
+}
+
 /**
- * Build a list of parts-vendor search URLs for a given part.
+ * Build a list of vendor-search URLs (or, for "service" category, shop-finder
+ * URLs) appropriate for the part's category.
  *
  * Strategy:
- *  - When the LLM provided an OEM part number, USE IT as the primary query -
- *    vendors return high-precision results when searching by part number.
- *  - Otherwise, use the part's searchTerms (or name) plus the series label.
- *  - Use Google site-scoped search for vendor lookups (`site:vendor.com Q`)
- *    because every vendor's internal search has different conventions and
- *    Google reliably returns the right product pages.
+ *  - For category="service": return shop-finder URLs (Google Maps / Yelp)
+ *    instead of parts vendors. The owner needs labor, not a part.
+ *  - For category="tire": route through tire vendors (Tire Rack, Discount
+ *    Tire, etc.), not Land Cruiser parts vendors.
+ *  - For category="fluid": include OEM Toyota fluid sources plus general
+ *    auto retailers.
+ *  - For category="tool": include Amazon, Harbor Freight, Toyota SST search.
+ *  - For category="part" (default): the existing PARTS_VENDORS list, with
+ *    the OEM number as the primary search query when available.
  *
  * @param {{
- *   name: string,
+ *   name?: string,
+ *   category?: 'part'|'tire'|'fluid'|'service'|'tool',
  *   searchTerms?: string,
  *   oem?: boolean,
  *   oemPartNumber?: string | null,
  * }} part
  * @param {string} [seriesLabel]
- * @returns {Array<{ vendor: string, url: string, kind: 'oem'|'aftermarket'|'marketplace' }>}
+ * @returns {Array<{ vendor: string, url: string, kind: 'oem'|'aftermarket'|'marketplace'|'service' }>}
  */
 function buildPartsSearchUrls(part, seriesLabel /*, vin */) {
+  const category = part.category || 'part';
   const oemNum = (part.oemPartNumber || '').trim();
   const baseTerms = (part.searchTerms || part.name || '').trim();
-  // When we have an OEM number it should be the dominant query term; vendors
-  // return very precise results. We still include the part name as a safety
-  // net so Google Shopping / generic results stay relevant.
+
+  // Service items don't have a "buy" path - they need a shop. We return a
+  // small list of shop-finder URLs the UI can render distinctly.
+  if (category === 'service') {
+    const labor = baseTerms || part.name || 'Toyota Land Cruiser service';
+    const seriesQ = seriesLabel ? `${seriesLabel} ` : '';
+    const enc = (q) => encodeURIComponent(q);
+    return [
+      {
+        vendor: 'Find a Toyota / Land Cruiser specialist near you',
+        url: `https://www.google.com/maps/search/${enc('Toyota Land Cruiser specialist ' + labor)}`,
+        kind: 'service',
+      },
+      {
+        vendor: 'Yelp - independent Toyota mechanics',
+        url: `https://www.yelp.com/search?find_desc=${enc('Toyota mechanic ' + labor)}&find_loc=`,
+        kind: 'service',
+      },
+      {
+        vendor: 'ih8mud - shop recommendations',
+        url: `https://www.google.com/search?q=${enc('site:forum.ih8mud.com ' + seriesQ + labor + ' shop recommendation')}`,
+        kind: 'service',
+      },
+    ];
+  }
+
+  // Pick the right vendor list for the category.
+  let list;
+  if (category === 'tire') list = TIRE_VENDORS;
+  else if (category === 'fluid') list = FLUID_VENDORS;
+  else if (category === 'tool') list = TOOL_VENDORS;
+  else list = PARTS_VENDORS; // 'part' (default)
+
+  // Build the search query. OEM number wins when present (precise results);
+  // otherwise use the part's searchTerms with the series for context.
   const query = oemNum
     ? `${oemNum} ${part.name || ''}`.trim()
     : `${seriesLabel || 'Toyota Land Cruiser'} ${baseTerms}`.trim();
-  const encQ = encodeURIComponent(query);
 
-  const links = PARTS_VENDORS.map((v) => {
-    if (v.direct) return { vendor: v.vendor, kind: v.kind, url: v.direct(query) };
-    // Google site-scoped search - always lands on the vendor's real product pages.
-    return {
-      vendor: v.vendor,
-      kind: v.kind,
-      url: `https://www.google.com/search?q=site%3A${v.site}+${encQ}`,
-    };
-  });
+  const links = list.map((v) => ({
+    vendor: v.vendor,
+    kind: v.kind,
+    url: vendorUrl(v, query),
+  }));
 
-  // If the LLM marked this part as OEM-required, surface OEM vendors first.
+  // For OEM-required parts, surface OEM vendors first.
   if (part.oem) {
     links.sort((a, b) => (a.kind === 'oem' ? -1 : 1) - (b.kind === 'oem' ? -1 : 1));
   }
