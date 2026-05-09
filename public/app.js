@@ -406,7 +406,28 @@ tsForm.addEventListener('submit', async (e) => {
   const year = $('#ts-year').value || undefined;
   const engine = $('#ts-engine').value || undefined;
   tsResult.classList.remove('hidden');
-  tsResult.innerHTML = '<div class="card"><span class="spinner"></span>Analyzing symptoms...</div>';
+
+  // Build a context-aware loading message so the user knows what's happening.
+  const contextBits = [];
+  if (year) contextBits.push(year);
+  if (series) {
+    const seriesEntry = (CATALOG.series || []).find((s) => s.id === series);
+    contextBits.push(seriesEntry ? seriesEntry.label : series);
+  }
+  if (engine) contextBits.push(engine);
+  const contextLabel = contextBits.length
+    ? `your ${contextBits.join(' ')}`
+    : 'common Land Cruiser failure modes';
+
+  tsResult.innerHTML = `<div class="card loading-card">
+    <div class="loading-head"><span class="spinner"></span><strong>Asking Claude to diagnose this...</strong></div>
+    <ul class="loading-steps">
+      <li>Cross-referencing ${escapeHtml(contextLabel)}</li>
+      <li>Looking up likely OEM part numbers</li>
+      <li>Pulling related ih8mud threads and parts vendors</li>
+    </ul>
+    <p class="loading-foot muted">Usually takes 5-15 seconds.</p>
+  </div>`;
   try {
     const r = await fetch('/api/troubleshoot', {
       method: 'POST',

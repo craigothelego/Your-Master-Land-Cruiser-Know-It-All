@@ -1067,6 +1067,25 @@ button.copy-btn:hover {
   margin-right: 8px;
   vertical-align: -2px;
 }
+
+.loading-card .loading-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  color: var(--text);
+}
+.loading-card .loading-steps {
+  margin: 10px 0 6px 4px;
+  padding-left: 18px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.loading-card .loading-foot {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
